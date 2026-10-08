@@ -70,21 +70,33 @@ jobs:
           fi
 
       - name: Prepare Release Keystore (Optional)
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > my-upload-key.jks
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Decoding release keystore..."
+            echo "$KEYSTORE_BASE64" | base64 -d > my-upload-key.jks
+          else
+            echo "No release keystore secret provided, skipping."
+          fi
 
       - name: Build Debug APK
         if: github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == ''
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Build Release APK
-        if: (github.event.inputs.build_type == 'release' || github.event.inputs.build_type == 'all') && secrets.STORE_PASSWORD != ''
+        if: github.event.inputs.build_type == 'release' || github.event.inputs.build_type == 'all'
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEYSTORE_PATH: my-upload-key.jks
-        run: ./gradlew assembleRelease --stacktrace
+        run: |
+          if [ -f "$KEYSTORE_PATH" ] && [ -n "$STORE_PASSWORD" ]; then
+            echo "Building signed release APK..."
+            ./gradlew assembleRelease --stacktrace
+          else
+            echo "Release keystore or password not found, skipping release build."
+          fi
 
       - name: Upload Debug APK Artifact
         if: always() && hashFiles('app/build/outputs/apk/debug/*.apk') != ''
