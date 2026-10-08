@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python (for Chaquopy)
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
