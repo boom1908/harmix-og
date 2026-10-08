@@ -24,13 +24,13 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Harmix"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:supportsRtl="true">
 
         <activity
             android:name="com.boom.harmix.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Harmix"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
